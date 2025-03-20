@@ -1,0 +1,118 @@
+🚖 Pico y Placa Generator - TAXI Edition
+Environmental Zone Project
+Here Technologies (2025)
+Created by: Emiliano Santos Tinoco - SDS2
+Last Updated: 19 March 2025
+
+📄 Description
+The Pico y Placa Generator - TAXI Edition is a Python application that automates the creation of vehicle restriction metadata specifically for taxis in Environmental Zones (EZ).
+
+This tool uses Streamlit as a web interface to:
+
+  Allow manual input of taxi plate numbers by day.
+  Select custom date ranges and exclude holidays.
+  Group dates into consecutive weekly blocks, even if weeks are incomplete.
+  Dynamically select EZ_Tag values (LicensePlate, LicensePlateEnding, or LicensePlateStarting).
+  Export the results as a CSV file for further processing.
+🚀 Features
+✅ Dynamic Date Range Selection:
+Specify a custom start and end date.
+Exclude holidays by entering them manually.
+
+✅ Flexible Plate Input:
+Manually enter taxi plate numbers per day.
+Grouped by consecutive weekly blocks.
+
+✅ Dynamic EZ_Tag Selection:
+Choose between:
+  LicensePlate → EZ_KEY_ID = 3
+  LicensePlateEnding → EZ_KEY_ID = 5
+  LicensePlateStarting → EZ_KEY_ID = 7
+The EZ_KEY_ID is dynamically updated based on the selection.
+
+✅ Export to CSV:
+Generates a structured DataFrame with all restriction records.
+Exports the data to a CSV file for easy integration with other systems.
+
+🛠️ Installation
+Clone the repository:
+  git clone https://github.com/your-username/pico-y-placa-taxi.git
+  cd pico-y-placa-taxi
+
+Create a virtual environment (optional but recommended):
+  python -m venv venv
+  source venv/bin/activate  # Linux/macOS
+  venv\Scripts\activate     # Windows
+
+Install the dependencies:
+  pip install -r requirements.txt
+
+▶️ Usage
+Run the application:
+streamlit run pico_y_placa_taxi.py
+Application Workflow:
+Open the web interface in your browser (http://localhost:8501).
+Select the desired date range and input holidays.
+Choose the EZ_Tag value dynamically.
+Enter taxi plate numbers per day, grouped by week.
+Click "Generate DataFrame" to create the restriction records.
+Export the results by clicking "Download CSV".
+
+⚙️ Configuration Options
+You can customize the following parameters:
+  Holidays:
+    Enter holidays manually in DDMMYYYY format.
+    Multiple dates can be separated by commas.
+  Date range:
+    Select the start and end dates.
+  Time range:
+    Define the restriction time (e.g., 00:00-23:59).
+  EZ_Tag dynamic selection:
+    Select between LicensePlate, LicensePlateEnding, and LicensePlateStarting.
+  Plate number input:
+    Enter taxi plate numbers day by day.
+
+📚 Dependencies
+Python 3.8+
+Streamlit → pip install streamlit
+Pandas → pip install pandas
+
+Install all dependencies using:
+      pip install -r requirements.txt
+
+
+🚩 Troubleshooting
+Streamlit not found:
+Make sure Streamlit is installed:
+    pip install streamlit
+
+CSV encoding issues:
+  Ensure you export using UTF-8 encoding.
+
+Modify the CSV export line if needed:
+  csv = df.to_csv(index=False, encoding='utf-8').encode('utf-8')
+
+💡 Future Improvements
+✅ Add support for additional vehicle categories.
+✅ Implement multi-language support (English/Spanish).
+✅ Include validation checks for invalid plate formats.
+
+🛠️ Contributing
+Fork the repository.
+Create a new branch:
+  git checkout -b feature/your-feature
+
+Commit your changes:
+  git commit -m "Add your feature"
+
+Push to the branch:
+  git push origin feature/your-feature
+
+Open a pull request.
+📧 Contact Information
+Author: Emiliano Santos T
+
+🛡️ License
+This project is licensed under the MIT License.
+
+
