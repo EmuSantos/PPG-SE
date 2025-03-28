@@ -51,19 +51,37 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 # Streamlit Config
-st.title('Pico y Placa Generator - TAXI Edition')
+st.title('Pico y Placa Generator - Special Situation')
 
-# Holidays
-holidays = st.text_area(
-    "Holidays (format DDMMYYYY):",
-    value='01012025, 31122025'
+# Feriados por país
+holidays_by_country = {
+    "Colombia": "01012025, 06012025, 24032025, 17042025, 18042025, 01052025, 02062025, 23062025, 30062025, 20072025, 07082025, 18082025, 13102025, 03112025, 17112025, 08122025, 25122025",
+    "México": "01012025, 03022025, 03032025, 17032025, 17042025, 18042025, 01052025, 05052025, 16092025, 03112025, 17112025, 25122025",
+    "Brazil": "01012025, 01032025, 02032025, 03032025, 04032025, 05032025, 18042025, 21042025, 01052025, 07092025, 12102025, 02112025, 15112025, 24122025, 25122025, 31122025",
+    "Costa Rica": "01012025, 19032025, 11042025, 17042025, 18042025, 01052025, 25072025, 02082025, 15082025, 15092025, 12102025, 24122025, 25122025",
+    "Bolivia": "01012025, 22012025, 03032025, 04032025, 18042025, 01052025, 19062025, 21062025, 06082025, 02112025, 03112025, 25122025",
+    "Ecuador": "01012025, 03032025, 04032025, 18042025, 01052025, 24052025, 10082025, 09102025, 02112025, 03112025, 25122025",
+    "Perú": "01012025, 17042025, 18042025, 01052025, 07062025, 29062025, 23072025, 28072025, 29072025, 06082025, 30082025, 08102025, 01112025, 08122025, 09122025, 25122025",
+    "Chile": "01012025, 18042025, 19042025, 01052025, 21052025, 07062025, 20062025, 29062025, 16072025, 15082025, 20082025, 18092025, 19092025, 12102025, 31102025, 01112025, 16112025, 08122025, 14122025, 25122025, 31122025"
+}
+
+# Select Country
+country = st.selectbox("Select a country's public holidays:", list(holidays_by_country.keys()))
+selected_holidays = holidays_by_country[country]
+
+# Add Manually if needed
+manual_holidays = st.text_area(
+    "Or add holidays manually (format DDMMYYYY, separated by commas):",
+    value=selected_holidays
 )
-holidays = holidays.replace(" ", "").split(',')
+
+# Process Holidays
+holidays = manual_holidays.replace(" ", "").split(',')
 
 # Convert holidays to datetime
 holiday_dates = [datetime.strptime(date, '%d%m%Y').date() for date in holidays]
 
-# Function to add records
+# Function to create a record
 def addreg(EZname, EZid, Vcat, VcatID, EZvr_value, EZkeyid_value, EZkeyname, EZtag, EZval, timeft, dayft, monthft, dateft):
     return {
         'ENVZONE_NAME': EZname,
@@ -72,7 +90,7 @@ def addreg(EZname, EZid, Vcat, VcatID, EZvr_value, EZkeyid_value, EZkeyname, EZt
         'vehicle_category': Vcat,
         'vehicle_category_id': VcatID,
         'EZ_VR_VALUES': EZvr_value,
-        'EZ_KEY_ID': EZkeyid_value,    # Dynamic EZ_KEY_ID
+        'EZ_KEY_ID': EZkeyid_value,
         'EZ_KEY_NAMES': EZkeyname,
         'EZ_ADDT_TAG': EZtag,
         'EZ_VALUES': EZval,
@@ -82,13 +100,12 @@ def addreg(EZname, EZid, Vcat, VcatID, EZvr_value, EZkeyid_value, EZkeyname, EZt
         'dateFrom_dateTo': f'{dateft}-{dateft}'
     }
 
-# Date conversion helpers
+# Convert month to 'MM' format
 def monthm(varmonth):
-    """Convert date to 'MM' format."""
     return varmonth.strftime('%m')
 
+# Convert days to 'DD-DD'
 def dayy(varname):
-    """Map weekday names to 'DD' format."""
     day_map = {
         'Monday': '02',
         'Tuesday': '03',
@@ -100,26 +117,39 @@ def dayy(varname):
     }
     return day_map.get(varname, '')
 
-# Ez_Tag Values (dynamic mapping)
+# Vehicle Categories and value
+vehicle_categories = {
+    'AUTO': 3,
+    'CARPOOL': 16,
+    'MOTORCYCLE': 2,
+    'THROUGH_TRAFFIC': 15,
+    'TAXI': 14,
+    'TRUCK': 6,
+    'BUS': 13
+}
+
+# Ez_VehicleRestriction Values
+EZvr_values = {
+    'License Plate Number': 'LIC_PLATE',
+    'OVERRIDE': 'OVERRIDE',
+    'Max_Total_Weight': 'MAX_TOTAL_WGHT'
+}
+
+# Ez_Tag Values
 Ez_Tag = {
     'LicensePlate': 3,
     'LicensePlateEnding': 5,
     'LicensePlateStarting': 7
 }
 
-# Constants for Taxi
-EZname = st.text_input('Zone Name:', 'Pico y Placa - TAXI')
+# Insert text
+EZname = st.text_input('Zone Name:', 'Pico y Placa')
+selected_categories = st.multiselect('Vehicle Categories:', list(vehicle_categories.keys()))
 EZid = st.text_input('Zone ID:', '')
-EZvr_value = 'LIC_PLATE'
-
-# **Dynamic selection for Ez_Tag**
-selected_tag = st.selectbox("Select EZ Tag:", list(Ez_Tag.keys()))
-EZkeyid_value = Ez_Tag[selected_tag]  # Dynamically update EZ_KEY_ID
-EZkeyname = 'License Plate Number'
-
-# Date range selection
+EZvr_selected = st.selectbox('Vehicle Restriction Value:', list(EZvr_values.keys()))
+EZtag_selected = st.selectbox('EzTag:', list(Ez_Tag.keys()))
 startdate = st.date_input('Start day:', datetime(2025, 1, 1))
-enddate = st.date_input('End day:', datetime(2025, 12, 31))
+enddate = st.date_input('End Day:', datetime(2025, 12, 31))
 times = st.text_input('Time Range:', '00:00-23:59')
 
 # Group dates by month
@@ -160,10 +190,11 @@ def group_by_consecutive_weeks(dates):
 
     return weeks
 
-# Display plate number input by month in weekly blocks
+
+# Display weekly input by month
 plates_per_day = {}
 
-st.write("### Enter plate numbers by month (consecutive weeks):")
+st.write("### Enter plate numbers")
 
 for month, dates in dates_by_month.items():
     weeks = group_by_consecutive_weeks(dates)
@@ -186,43 +217,35 @@ for month, dates in dates_by_month.items():
 
                 if plates:
                     plates_per_day[date] = plates
-
 # Generate records
-if 'records_taxi' not in st.session_state:
-    st.session_state.records_taxi = []
+if 'records_weekdays' not in st.session_state:
+    st.session_state.records_weekdays = []
 
-def generate_taxi_records():
+def generate_records():
+    EZvr_value = EZvr_values[EZvr_selected]
+    EZkeyid_value = Ez_Tag[EZtag_selected]
+    EZkeyname = EZvr_selected
+
     for date, plates in plates_per_day.items():
         day_ft = dayy(date.strftime('%A'))
         month_ft = monthm(date)
 
-        for plate in plates:
-            record = addreg(
-                EZname, EZid, 'TAXI', 14, EZkeyname,  EZvr_value, selected_tag, EZkeyid_value, plate, times, day_ft, month_ft, date.strftime("%Y%m%d"))
+        for val in plates:
+            for category in selected_categories:
+                VcatID = vehicle_categories[category]
+                record = addreg(EZname, EZid, category, VcatID, EZkeyname, EZvr_value, EZtag_selected, EZkeyid_value, val, times, day_ft, month_ft, date.strftime("%Y%m%d"))
+                st.session_state.records_weekdays.append(record)
 
-            # Avoid duplicates
-            if record not in st.session_state.records_taxi:
-                st.session_state.records_taxi.append(record)
-
-# Generate DataFrame
 if st.button("Generate DataFrame"):
-    if plates_per_day:
-        generate_taxi_records()
-        st.success("Records generated successfully.")
-    else:
-        st.error("Please enter plate numbers for at least one day.")
-
-# Display DataFrame
-df_taxi = pd.DataFrame(st.session_state.records_taxi)
-st.write('### DataFrame:')
-st.dataframe(df_taxi)
+    generate_records()
+    st.success("Records generated successfully.")
 
 # Export DataFrame to CSV
-csv = df_taxi.to_csv(index=False, quoting=1).encode('utf-8')
+df_weekdays = pd.DataFrame(st.session_state.records_weekdays)
+st.write('### DataFrame:')
+st.dataframe(df_weekdays)
 
-st.download_button(
-    label="Download CSV",
-    data=csv,
-    file_name='PicoYPlaca_TAXI.csv',
-    mime='text/csv',
-)
+file_name = f"EZ_{EZname}_{EZid}_Metadata_{datetime.now().year}.csv"
+csv = df_weekdays.to_csv(index=False, quoting=1).encode('utf-8')
+
+st.download_button("Download CSV", csv, file_name, "text/csv")
