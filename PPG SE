@@ -59,7 +59,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 # Streamlit Config
-st.title('Pico y Placa Generator - Special Situation')
+st.title('Pico y Placa Generator - Special Edition')
 
 # Feriados por país
 holidays_by_country = {
