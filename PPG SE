@@ -1,39 +1,43 @@
 """
 ##################################################################################
-##                      Pico y Placa Generator - TAXI Edition                    ##
+##              Pico y Placa Generator Special Edition (PPG SE)                  ##
 ##                         Environmental Zone Project                            ##
 ##                          Here Technologies (2025)                             ##
 ##                      Created by Emi Santos Tinoco - SDS1                      ##
-##                            Last Updated: 19 March 2025                        ##
+##                            Last Updated: 3 April 2025                         ##
 ##################################################################################
-##                                                                               
-## DESCRIPTION:                                                                  
-## This Python application generates vehicle restriction metadata for taxi plates
-## in Environmental Zones (EZ) using Streamlit. It allows users to:
-##  - Input license plates manually by day.
-##  - Select custom date ranges and holiday exclusions.
-##  - Group dates into consecutive weekly blocks, even if weeks are incomplete.
-##  - Dynamically select EZ_Tag values (LicensePlate, Ending, Starting).
-##  - Export the results as a CSV file for further processing.    
-##                                                                               
-## USAGE INSTRUCTIONS:                                                           
-## 1. Install required libraries using pip:                                       
-##    pip install streamlit pandas                                               
-##                                                                               
-## 2. Run the application locally:                                               
-##    streamlit run pico_y_placa_taxi.py                                         
-##                                                                               
-## 3. Features:                                                                  
-##    - Select date ranges and input holidays.                                    
-##    - Select the EZ_Tag (LicensePlate, Ending, Starting) dynamically.           
-##    - Input plate numbers by day, grouped by consecutive weekly blocks.         
-##    - Generate a DataFrame and export it as a CSV.                              
-##                                                                               
-## DEPENDENCIES:                                                                 
-## - Python 3.8+                                                                 
-## - Streamlit 1.30+                                                             
-## - Pandas 2.0+                                                                 
-##                                                                               
+
+## Description:
+## PPG is a tool designed to streamline the creation of metadata for vehicle 
+## restriction zones, also known as "Pico y Placa". This tool allows users to 
+## quickly configure and generate restriction records in a structured format, 
+## making the process more efficient while maintaining an open-source nature 
+## for customization. 
+
+## Features:
+## - User-friendly interface with Streamlit.
+## - Automated restriction generation based on user input.
+## - Dynamic handling of holidays and date ranges.
+## - Support for multiple vehicle categories.
+## - Export functionality to CSV format.
+## - Customizable restrictions, including weight-based limitations for trucks.
+
+## Usage:
+## - Enter the environmental zone name and ID.
+## - Select vehicle restriction values and additional tags.
+## - Define the applicable date range and time periods.
+## - Input restriction values based on license plates or maximum total weight.
+## - Add specific truck restrictions when required.
+## - Generate and review the resulting DataFrame.
+## - Export the data to a CSV file 
+## - Generate and review the MMT Files.
+
+## Dependencies:
+## - Python 3.x
+## - Streamlit
+## - Pandas
+## - Datetime
+
 ## Notes:
 ## - Ensure all required fields are correctly filled before generating the DataFrame.
 ## - The tool prevents duplicate records from being added.
@@ -45,6 +49,10 @@
 
 """
 
+
+import streamlit as st
+from datetime import datetime, timedelta
+import pandas as pd
 
 import streamlit as st
 from datetime import datetime, timedelta
@@ -130,16 +138,24 @@ vehicle_categories = {
 
 # Ez_VehicleRestriction Values
 EZvr_values = {
-    'License Plate Number': 'LIC_PLATE',
+    'LICENSE PLATE NUMBER': 'LIC_PLATE',
     'OVERRIDE': 'OVERRIDE',
-    'Max_Total_Weight': 'MAX_TOTAL_WGHT'
+    'MAX TOTAL WEIGHT': 'MAX_TOTAL_WGHT',
+    'ENVIRONMENTAL BADGE' : 'ENV_BADGE',
+    'ABSOLUTE VEHICLE AGE': 'ABS_VEH_AGE',
+    'RELATIVE VEHICLE AGE': 'REL_VEH_AGE'
 }
 
 # Ez_Tag Values
 Ez_Tag = {
     'LicensePlate': 3,
     'LicensePlateEnding': 5,
-    'LicensePlateStarting': 7
+    'LicensePlateStarting': 7,
+    'Max Total Weight': 8,
+    'Environmental Badge': 9,
+    'Absolute Vehicle Age': 10,
+    'Relative Vehicle Age': 11,
+    'OVERRIDE':12
 }
 
 # Insert text
@@ -249,3 +265,4 @@ file_name = f"EZ_{EZname}_{EZid}_Metadata_{datetime.now().year}.csv"
 csv = df_weekdays.to_csv(index=False, quoting=1).encode('utf-8')
 
 st.download_button("Download CSV", csv, file_name, "text/csv")
+
